@@ -6,11 +6,9 @@ toolchain go1.24.3
 
 require (
 	github.com/miekg/dns v1.1.72
+	github.com/xinix00/hoplib v0.1.0
 	gopkg.in/yaml.v3 v3.0.1
-	hoplib v0.0.0
 )
-
-replace hoplib => ../hoplib
 
 require (
 	golang.org/x/mod v0.31.0 // indirect
@@ -19,3 +17,5 @@ require (
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/tools v0.40.0 // indirect
 )
+
+replace github.com/xinix00/hoplib => ../hoplib

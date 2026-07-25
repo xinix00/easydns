@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"hoplib"
+	"github.com/xinix00/hoplib"
 )
 
 func TestWatcherRefresh(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"net"
 	"testing"
 
-	"hoplib"
+	"github.com/xinix00/hoplib"
 	"github.com/miekg/dns"
 )
 

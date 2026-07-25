@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"hoplib"
+	"github.com/xinix00/hoplib"
 )
 
 // Watcher watches an hop cluster via SSE and keeps the cache updated.
