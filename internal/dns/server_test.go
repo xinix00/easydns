@@ -40,21 +40,29 @@ func TestServerHandleQuery(t *testing.T) {
 	}
 }
 
-func TestServerHandleQueryNoCluster(t *testing.T) {
+func TestServerHandleQueryMergedAcrossClusters(t *testing.T) {
 	cache := NewCache()
 	cache.Set("prod", "myapp", []net.IP{net.ParseIP("192.168.1.10")})
+	cache.Set("staging", "myapp", []net.IP{net.ParseIP("192.168.2.10")})
 
 	server := NewServer(cache, ":0", "internal")
 
-	// Query without cluster qualifier → no results (cluster required)
+	// Bare query (no cluster label) merges every peer: the documented default.
 	req := new(dns.Msg)
 	req.SetQuestion("myapp.internal.", dns.TypeA)
 
 	rw := &mockResponseWriter{}
 	server.handleQuery(rw, req)
 
-	if len(rw.msg.Answer) != 0 {
-		t.Errorf("Expected 0 answers for query without cluster, got %d", len(rw.msg.Answer))
+	if len(rw.msg.Answer) != 2 {
+		t.Fatalf("expected 2 merged answers (prod + staging), got %d", len(rw.msg.Answer))
+	}
+	got := map[string]bool{}
+	for _, ans := range rw.msg.Answer {
+		got[ans.(*dns.A).A.String()] = true
+	}
+	if !got["192.168.1.10"] || !got["192.168.2.10"] {
+		t.Errorf("merged answer missing a cluster's IP: %v", got)
 	}
 }
 

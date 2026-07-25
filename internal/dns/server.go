@@ -2,6 +2,7 @@ package dns
 
 import (
 	"log"
+	"net"
 	"strings"
 
 	"github.com/miekg/dns"
@@ -104,12 +105,14 @@ func (s *Server) handleQuery(w dns.ResponseWriter, r *dns.Msg) {
 			continue // Query doesn't match our domain
 		}
 
-		// Parse: "myapp.prod-eu" → service="myapp", cluster="prod-eu"
-		service, cluster, ok := strings.Cut(prefix, ".")
-		if !ok {
-			continue
+		// "<service>.<cluster>" → that cluster; bare "<service>" → merge all
+		// peers (the documented federation default, e.g. myapp.hop.local).
+		var ips []net.IP
+		if service, cluster, ok := strings.Cut(prefix, "."); ok {
+			ips = s.cache.GetCluster(cluster, service)
+		} else {
+			ips = s.cache.GetMerged(prefix)
 		}
-		ips := s.cache.GetCluster(cluster, service)
 
 		for _, ip := range ips {
 			m.Answer = append(m.Answer, &dns.A{

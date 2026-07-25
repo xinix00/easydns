@@ -28,6 +28,25 @@ func (c *Cache) GetCluster(cluster, jobName string) []net.IP {
 	return nil
 }
 
+// GetMerged returns the union of IPs for a job name across all clusters,
+// de-duplicated. It serves the cluster-less query "<service>.<domain>", which
+// merges every peer (the documented federation default).
+func (c *Cache) GetMerged(jobName string) []net.IP {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	var out []net.IP
+	seen := make(map[string]bool)
+	for _, jobs := range c.clusters {
+		for _, ip := range jobs[jobName] {
+			if k := ip.String(); !seen[k] {
+				seen[k] = true
+				out = append(out, ip)
+			}
+		}
+	}
+	return out
+}
+
 
 // Set stores IPs for a job name in a cluster
 func (c *Cache) Set(cluster, jobName string, ips []net.IP) {

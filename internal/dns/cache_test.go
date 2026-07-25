@@ -83,3 +83,15 @@ func TestCacheClear(t *testing.T) {
 		t.Error("staging cluster should still have data")
 	}
 }
+
+func TestCacheGetMergedDedupes(t *testing.T) {
+	c := NewCache()
+	c.Set("a", "web", []net.IP{net.ParseIP("10.0.0.1"), net.ParseIP("10.0.0.2")})
+	c.Set("b", "web", []net.IP{net.ParseIP("10.0.0.2"), net.ParseIP("10.0.0.3")}) // .2 is a dup
+	c.Set("a", "other", []net.IP{net.ParseIP("10.9.9.9")})                        // different job
+
+	merged := c.GetMerged("web")
+	if len(merged) != 3 {
+		t.Fatalf("expected 3 deduped IPs across clusters, got %d (%v)", len(merged), merged)
+	}
+}
