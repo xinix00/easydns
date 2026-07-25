@@ -34,8 +34,8 @@ KISS approach — every cluster is a peer, including your own:
 - `-peer` flag per cluster endpoint (repeatable)
 - Each peer gets its own SSE watcher (connects to `/v1/events`)
 - Cluster name auto-discovered from peer's `GET /v1/status` → `cluster_name`
-- Peer down: cache cleared for that cluster, other peers unaffected
-- Peer reconnect: re-discovers cluster name, re-seeds cache
+- Peer down: last-known-good cache kept (stale), other peers unaffected — a failover doesn't black out DNS (same as hoplb)
+- Peer reconnect: re-seeds the cache, replacing the stale entries
 
 ### DNS Resolution
 

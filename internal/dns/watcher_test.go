@@ -462,7 +462,7 @@ func TestSSE_Disconnect(t *testing.T) {
 
 	cache := NewCache()
 	watcher := NewWatcher(server.URL, cache, "")
-	watcher.interval = 50 * time.Millisecond // fast reconnect for test
+	watcher.interval = 5 * time.Second // slow reconnect: observe the post-disconnect window
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -475,13 +475,15 @@ func TestSSE_Disconnect(t *testing.T) {
 		t.Fatalf("Expected 1 IP before disconnect, got %d", len(ips))
 	}
 
-	// Close SSE stream → watcher detects disconnect → clears cache
+	// Disconnect the SSE stream. The watcher must KEEP the last-known-good
+	// cache (stale) — a failover must not black out DNS while tasks run. The
+	// slow interval means no reconnect happens in the window below, so a
+	// non-empty result proves the cache was kept, not re-seeded.
 	close(mock.sseDone)
 	time.Sleep(200 * time.Millisecond)
 
-	// Cache should be cleared for this cluster
-	if ips := cache.GetCluster("test-cluster", "api"); len(ips) != 0 {
-		t.Errorf("Expected 0 IPs after disconnect (cache cleared), got %d", len(ips))
+	if ips := cache.GetCluster("test-cluster", "api"); len(ips) != 1 {
+		t.Errorf("Expected stale cache kept (1 IP) after disconnect, got %d", len(ips))
 	}
 }
 

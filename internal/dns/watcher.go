@@ -35,7 +35,9 @@ func NewWatcher(agentAddr string, cache *Cache, apiKey string) *Watcher {
 }
 
 // Run discovers the cluster name and then watches SSE for state changes.
-// On disconnect, clears the cache for this cluster and retries.
+// On disconnect it keeps the last-known-good cache (stale) and retries; the
+// cache is replaced on reconnect. This matches hoplb — a failover must not
+// black out DNS while tasks keep running (graceful degradation).
 func (w *Watcher) Run(ctx context.Context) {
 	for {
 		if ctx.Err() != nil {
@@ -63,12 +65,12 @@ func (w *Watcher) Run(ctx context.Context) {
 			return
 		}
 
-		// On disconnect, clear cache (stale data)
-		w.cache.Clear(w.cluster)
+		// Keep the last-known-good cache on disconnect (same as hoplb): a
+		// dropped SSE stream — e.g. during a leader failover — must not black
+		// out DNS while the tasks are still running. The cache is replaced on
+		// reconnect, when watchSSE re-seeds via refresh(). The cluster name is
+		// stable, so we keep it and skip re-discovery.
 		log.Printf("[%s] (%s) SSE disconnected: %v, reconnecting in %v", w.agentAddr, w.cluster, err, w.interval)
-
-		// Re-discover cluster name on reconnect
-		w.cluster = ""
 
 		select {
 		case <-time.After(w.interval):
