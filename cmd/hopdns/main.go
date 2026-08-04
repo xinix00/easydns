@@ -10,7 +10,7 @@ import (
 	"strings"
 	"syscall"
 
-	"hopdns/internal/dns"
+	"github.com/xinix00/hopdns/internal/dns"
 )
 
 // stringSlice implements flag.Value for repeated -peer flags
