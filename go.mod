@@ -13,7 +13,7 @@ require (
 // HopOS-repo), dus geen lokale replaces meer nodig; sibling-dev loopt
 // via go.work. Host-builds raken deze module dankzij module-pruning
 // nooit aan.
-require github.com/xinix00/HopOS/metal v1.12.1
+require github.com/xinix00/HopOS/metal v1.12.2
 
 require (
 	github.com/google/btree v1.1.2 // indirect
