@@ -13,11 +13,11 @@ require (
 // HopOS-repo), dus geen lokale replaces meer nodig; sibling-dev loopt
 // via go.work. Host-builds raken deze module dankzij module-pruning
 // nooit aan.
-require github.com/xinix00/HopOS/metal v1.15.2
+require github.com/xinix00/HopOS/metal v1.16.0
 
 require (
 	github.com/usbarmory/tamago v1.26.4 // indirect
-	github.com/xinix00/lean v0.5.1 // indirect
+	github.com/xinix00/lean v0.7.0 // indirect
 	golang.org/x/mod v0.31.0 // indirect
 	golang.org/x/net v0.48.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
