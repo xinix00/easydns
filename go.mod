@@ -13,7 +13,7 @@ require (
 // HopOS-repo), dus geen lokale replaces meer nodig; sibling-dev loopt
 // via go.work. Host-builds raken deze module dankzij module-pruning
 // nooit aan.
-require github.com/xinix00/HopOS/metal v1.9999.0
+require github.com/xinix00/HopOS/metal v1.99999.0
 
 require (
 	github.com/usbarmory/tamago v1.26.4 // indirect
